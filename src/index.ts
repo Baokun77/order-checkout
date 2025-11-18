@@ -1,7 +1,9 @@
 import Fastify from 'fastify';
+import swagger from '@fastify/swagger';
+import swaggerUi from '@fastify/swagger-ui';
 import healthRoutes from './routes/health.js';
 import userRoutes from './routes/users.js';
-import createOrderRoutes from './routes/create_order.js';
+import createOrderRoutes from './routes/orders.js';
 import loggerPlugin from './plugins/logger.js';
 
 const app = Fastify({
@@ -15,6 +17,16 @@ const app = Fastify({
       },
     },
   },
+});
+
+app.register(swagger, {
+  swagger: {
+    info: { title: 'Order API', version: '1.0.0' },
+  },
+});
+
+app.register(swaggerUi, {
+  routePrefix: '/docs',
 });
 
 app.register(loggerPlugin);
