@@ -23,6 +23,7 @@ model Order {
   items       OrderItem[]
 
   @@index([userId])
+  @@index([createdAt])
 }
 
 model OrderItem {
