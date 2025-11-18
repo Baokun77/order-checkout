@@ -12,6 +12,13 @@ const userRoutes: FastifyPluginAsync = async (app) => {
     });
     return user;
   });
+
+  app.get<{ Params: { id: string } }>('/users/:id/orders', async (req) => {
+    return prisma.order.findMany({
+      where: { userId: Number(req.params.id) },
+      include: { items: true },
+    });
+  });
 };
 
 export default userRoutes;
