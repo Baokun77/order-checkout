@@ -23,3 +23,11 @@ services:
         condition: service_healthy
     environment:
       DATABASE_URL: postgres://app:example@db:5432/appdb
+      NODE_ENV: production
+    command: >
+      sh -c "npx prisma migrate deploy &&
+             node dist/index.js"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:3000/healthz || exit 1"]
+      interval: 10s
+      retries: 5

@@ -9,13 +9,15 @@ import loggerPlugin from './plugins/logger.js';
 const app = Fastify({
   logger: {
     level: 'info',
-    transport: {
-      target: 'pino-pretty',
-      options: {
-        translateTime: 'HH:MM:ss Z',
-        ignore: 'pid,hostname',
+    ...(process.env.NODE_ENV !== 'production' && {
+      transport: {
+        target: 'pino-pretty',
+        options: {
+          translateTime: 'HH:MM:ss Z',
+          ignore: 'pid,hostname',
+        },
       },
-    },
+    }),
   },
 });
 
