@@ -14,6 +14,12 @@ services:
       timeout: 3s
       retries: 5
 
+  redpanda:
+    image: docker.redpanda.com/redpandadata/redpanda:v23.2.11
+    command: redpanda start --overprovisioned --smp 1 --memory 1G --mode dev-container
+    ports:
+      - "9092:9092"
+
   api:
     build: .
     ports:
@@ -24,6 +30,7 @@ services:
     environment:
       DATABASE_URL: postgres://app:example@db:5432/appdb
       NODE_ENV: production
+      KAFKA_BROKERS: redpanda:9092
     command: >
       sh -c "npx prisma migrate deploy &&
              node dist/index.js"
