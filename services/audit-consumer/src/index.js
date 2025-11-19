@@ -1,9 +1,13 @@
 const { Kafka } = require('kafkajs');
 const { prisma } = require('./db/client');
 
+const brokers = process.env.KAFKA_BROKERS
+  ? process.env.KAFKA_BROKERS.split(',')
+  : ['localhost:9092'];
+
 const kafka = new Kafka({
   clientId: 'audit-service',
-  brokers: ['localhost:9092'],
+  brokers,
 });
 
 const consumer = kafka.consumer({ groupId: 'audit-group' });
