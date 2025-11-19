@@ -5,6 +5,7 @@ import healthRoutes from './routes/health.js';
 import userRoutes from './routes/users.js';
 import orderRoutes from './routes/orders.js';
 import loggerPlugin from './plugins/logger.js';
+import { connectKafka, disconnectKafka } from './kafka/client.js';
 
 const app = Fastify({
   logger: {
@@ -40,6 +41,11 @@ app.register(healthRoutes);
 app.register(userRoutes);
 app.register(orderRoutes);
 
-app.listen({ port: 3000, host: '0.0.0.0' }).then(() => {
+app.listen({ port: 3000, host: '0.0.0.0' }).then(async () => {
   app.log.info('Server listening on port 3000');
+  await connectKafka();
+});
+
+app.addHook('onClose', async () => {
+  await disconnectKafka();
 });

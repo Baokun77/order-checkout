@@ -1,5 +1,7 @@
 import type { FastifyPluginAsync } from 'fastify';
 import { prisma } from '../db/client.js';
+import { producer, TOPICS } from '../kafka/client.js';
+import type { OrderCreatedEvent } from '../types/events.js';
 
 const orderRoutes: FastifyPluginAsync = async (app) => {
   app.post(
@@ -77,6 +79,26 @@ const orderRoutes: FastifyPluginAsync = async (app) => {
           where: { id: order.id },
           include: { items: true },
         });
+      });
+
+      const event: OrderCreatedEvent = {
+        orderId: result!.id,
+        userId: result!.userId,
+        items: result!.items.map((item) => ({
+          name: item.name,
+          price: Number(item.price),
+          quantity: item.quantity,
+        })),
+        createdAt: result!.createdAt.toISOString(),
+      };
+
+      await producer.send({
+        topic: TOPICS.ORDER_EVENTS,
+        messages: [
+          {
+            value: JSON.stringify(event),
+          },
+        ],
       });
 
       return result;
