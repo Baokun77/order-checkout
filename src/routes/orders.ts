@@ -96,6 +96,7 @@ const orderRoutes: FastifyPluginAsync = async (app) => {
         topic: TOPICS.ORDER_EVENTS,
         messages: [
           {
+            key: 'order-created',
             value: JSON.stringify(event),
           },
         ],
