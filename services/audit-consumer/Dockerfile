@@ -12,6 +12,7 @@ WORKDIR /app
 COPY --from=build /app/package*.json ./
 RUN npm install --only=prod
 COPY --from=build /app/src ./src
+RUN mkdir -p dist && cp -r src/. dist/
 COPY --from=build /app/prisma ./prisma
 COPY --from=build /app/node_modules/.prisma ./node_modules/.prisma
 COPY --from=build /app/view-dlq.js ./view-dlq.js

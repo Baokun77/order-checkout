@@ -5,4 +5,5 @@ metadata:
 data:
   DATABASE_URL: "postgres://app:example@postgres:5432/appdb"
   KAFKA_BROKER: "redpanda:9092"
+  KAFKA_BROKERS: "redpanda:9092"
 
