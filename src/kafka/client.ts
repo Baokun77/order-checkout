@@ -1,8 +1,13 @@
 import { Kafka } from 'kafkajs';
 
+const kafkaBrokers =
+  process.env.KAFKA_BROKERS ||
+  process.env.KAFKA_BROKER ||
+  'localhost:9092';
+
 const kafka = new Kafka({
   clientId: 'order-api',
-  brokers: (process.env.KAFKA_BROKERS || 'localhost:9092').split(','),
+  brokers: kafkaBrokers.split(','),
 });
 
 export const producer = kafka.producer();
