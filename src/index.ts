@@ -1,5 +1,6 @@
 import 'dotenv/config';
 import Fastify from 'fastify';
+import client from 'prom-client';
 import swagger from '@fastify/swagger';
 import swaggerUi from '@fastify/swagger-ui';
 import healthRoutes from './routes/health.js';
@@ -9,19 +10,11 @@ import loggerPlugin from './plugins/logger.js';
 import { connectKafka, disconnectKafka } from './kafka/client.js';
 
 const app = Fastify({
-  logger: {
-    level: 'info',
-    ...(process.env.NODE_ENV !== 'production' && {
-      transport: {
-        target: 'pino-pretty',
-        options: {
-          translateTime: 'HH:MM:ss Z',
-          ignore: 'pid,hostname',
-        },
-      },
-    }),
-  },
+  logger: true,
 });
+
+const register = new client.Registry();
+client.collectDefaultMetrics({ register });
 
 app.register(swagger, {
   swagger: {
@@ -41,6 +34,10 @@ app.register(loggerPlugin);
 app.register(healthRoutes);
 app.register(userRoutes);
 app.register(orderRoutes);
+
+app.get('/metrics', async () => {
+  return register.metrics();
+});
 
 app.listen({ port: 3000, host: '0.0.0.0' }).then(async () => {
   app.log.info('Server listening on port 3000');
