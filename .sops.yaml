@@ -1,0 +1,10 @@
+# SOPS configuration file
+# This file tells SOPS how to encrypt/decrypt files
+
+# Creation rules for different file patterns
+creation_rules:
+  # Rule for Kubernetes secrets
+  - path_regex: k8s/.*/secret\.enc\.yaml
+    age: >-
+      age19at7ptr8d2wgzgczcxyuxt4l7g737sd3ywgatpap42pqhj3g7ftsvg3z2u
+

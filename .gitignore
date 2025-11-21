@@ -18,9 +18,15 @@ yarn-error.log*
 .env.local
 .env.*.local
 
-# Secrets (unencrypted)
-*.enc.yaml
-secret.enc.yaml
+# Secrets (unencrypted/decrypted)
+# Allow encrypted .enc.yaml files to be committed
+# Exclude decrypted secret files
+k8s/**/secret.yaml
+!k8s/**/secret.enc.yaml
+
+# Age encryption keys (private keys should never be committed)
+age-key.txt
+*.age-key
 
 # IDE
 .vscode/

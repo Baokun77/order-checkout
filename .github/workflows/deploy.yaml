@@ -24,6 +24,45 @@ jobs:
       - name: Setup kind
         uses: helm/kind-action@v1.8.0
 
+      - name: Setup SOPS
+        uses: mozilla/sops@v3.7.3
+
+      - name: Decrypt secrets with SOPS
+        env:
+          SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY }}
+        run: |
+          # Create age key file from secret
+          if [ -n "$SOPS_AGE_KEY" ]; then
+            echo "$SOPS_AGE_KEY" > /tmp/age-key.txt
+            chmod 600 /tmp/age-key.txt
+            export SOPS_AGE_KEY_FILE=/tmp/age-key.txt
+            echo "Age key file created from secret"
+          else
+            echo "Warning: SOPS_AGE_KEY secret not set, skipping decryption"
+          fi
+          
+          # Decrypt secret files and save as .yaml (without .enc)
+          # Find all .enc.yaml files and decrypt them
+          for enc_file in $(find k8s -name "*.enc.yaml" -type f); do
+            dec_file="${enc_file%.enc.yaml}.yaml"
+            echo "Decrypting $enc_file to $dec_file"
+            sops -d "$enc_file" > "$dec_file" || {
+              echo "Error: Failed to decrypt $enc_file"
+              exit 1
+            }
+            echo "✓ Successfully decrypted $enc_file"
+          done
+          
+          # Clean up age key file
+          rm -f /tmp/age-key.txt
+          
+          # Verify at least one secret was decrypted (if any exist)
+          if [ -n "$(find k8s -name "*.enc.yaml" -type f)" ]; then
+            echo "All secrets decrypted successfully"
+          else
+            echo "No encrypted secrets found (this is OK if you don't have secrets)"
+          fi
+
       - name: Create kind cluster
         run: |
           kind create cluster --name ci --wait 5m
@@ -34,7 +73,8 @@ jobs:
 
       - name: Apply Kubernetes manifests
         run: |
-          find k8s -name "*.yaml" -o -name "*.yml" | xargs -I {} kubectl apply -f {}
+          # Apply all YAML files (including decrypted secrets)
+          find k8s -name "*.yaml" -o -name "*.yml" | grep -v "\.enc\.yaml$" | xargs -I {} kubectl apply -f {}
 
       - name: Wait for deployment
         run: |
