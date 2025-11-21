@@ -27,7 +27,7 @@ app.register(swagger, {
 });
 
 app.register(swaggerUi, {
-  routePrefix: '/docs',
+  routePrefix: '/doc',
 });
 
 app.register(loggerPlugin);
