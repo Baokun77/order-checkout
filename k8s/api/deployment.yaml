@@ -20,6 +20,8 @@ spec:
           envFrom:
             - configMapRef:
                 name: api-config
+            - secretRef:
+                name: api-secret
           readinessProbe:
             httpGet:
               path: /healthz
