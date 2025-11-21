@@ -95,7 +95,7 @@ creation_rules:
     Write-Host "   - 值: (复制 age-key.txt 的完整内容)" -ForegroundColor Gray
     Write-Host "4. 提交加密文件: git add k8s/api/secret.enc.yaml .sops.yaml" -ForegroundColor White
     
-    Write-Host "`n⚠ 重要: age-key.txt 包含私钥，不要提交到 Git！" -ForegroundColor Red
+    Write-Host "`n重要提示: age-key.txt 包含私钥，不要提交到 Git" -ForegroundColor Red
     Write-Host "   .gitignore 已配置排除 age-key.txt" -ForegroundColor Green
 } else {
     Write-Host "✗ 无法从密钥文件中提取公钥" -ForegroundColor Red
