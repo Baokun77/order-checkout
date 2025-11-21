@@ -24,8 +24,10 @@ jobs:
       - name: Setup kind
         uses: helm/kind-action@v1.8.0
 
-      - name: Setup SOPS
-        uses: mozilla/sops@v3.7.3
+      - name: Install SOPS
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y sops
 
       - name: Decrypt secrets with SOPS
         env:
