@@ -24,9 +24,23 @@ jobs:
       - name: Configure kubectl
         run: |
           mkdir -p ~/.kube
-          echo "${{ secrets.KUBECONFIG }}" | base64 -d > ~/.kube/config
+          # Try base64 decode first, if it fails, use as plain text
+          if echo "${{ secrets.KUBECONFIG }}" | base64 -d > ~/.kube/config 2>/dev/null; then
+            echo "KUBECONFIG decoded from base64"
+          else
+            echo "${{ secrets.KUBECONFIG }}" > ~/.kube/config
+            echo "KUBECONFIG used as plain text"
+          fi
+          chmod 600 ~/.kube/config
+
+      - name: Verify kubectl connection
+        run: |
+          kubectl config view --minify
+          kubectl cluster-info
+          kubectl get nodes
 
       - name: Deploy to K8s
         run: |
           kubectl set image deployment/api api=ghcr.io/baokun77/api:latest
+          kubectl rollout status deployment/api --timeout=300s
 
