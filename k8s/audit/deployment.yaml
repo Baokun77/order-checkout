@@ -21,3 +21,8 @@ spec:
           envFrom:
             - configMapRef:
                 name: api-config
+          resources:
+            requests:
+              cpu: "50m"
+            limits:
+              cpu: "100m"
