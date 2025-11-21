@@ -1,0 +1,32 @@
+name: Deploy
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Build image
+        run: docker build -t ghcr.io/<yourname>/api:latest .
+
+      - name: Push image
+        run: |
+          echo ${{ secrets.CR_PAT }} | docker login ghcr.io -u <yourname> --password-stdin
+          docker push ghcr.io/<yourname>/api:latest
+
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v3
+
+      - name: Configure kubectl
+        run: |
+          mkdir -p ~/.kube
+          echo "${{ secrets.KUBECONFIG }}" | base64 -d > ~/.kube/config
+
+      - name: Deploy to K8s
+        run: |
+          kubectl set image deployment/api api=ghcr.io/<yourname>/api:latest
+
