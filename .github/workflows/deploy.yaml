@@ -11,12 +11,12 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: Build image
-        run: docker build -t ghcr.io/Baokun77/api:latest .
+        run: docker build -t ghcr.io/baokun77/api:latest .
 
       - name: Push image
         run: |
-          echo ${{ secrets.CR_PAT }} | docker login ghcr.io -u Baokun77 --password-stdin
-          docker push ghcr.io/Baokun77/api:latest
+          echo ${{ secrets.CR_PAT }} | docker login ghcr.io -u baokun77 --password-stdin
+          docker push ghcr.io/baokun77/api:latest
 
       - name: Setup kubectl
         uses: azure/setup-kubectl@v3
@@ -28,5 +28,5 @@ jobs:
 
       - name: Deploy to K8s
         run: |
-          kubectl set image deployment/api api=ghcr.io/Baokun77/api:latest
+          kubectl set image deployment/api api=ghcr.io/baokun77/api:latest
 
