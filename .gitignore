@@ -18,6 +18,10 @@ yarn-error.log*
 .env.local
 .env.*.local
 
+# Secrets (unencrypted)
+*.enc.yaml
+secret.enc.yaml
+
 # IDE
 .vscode/
 .idea/
