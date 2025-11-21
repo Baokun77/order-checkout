@@ -21,23 +21,26 @@ jobs:
       - name: Setup kubectl
         uses: azure/setup-kubectl@v3
 
-      - name: Configure kubectl
-        run: |
-          mkdir -p ~/.kube
-          # Try base64 decode first, if it fails, use as plain text
-          if echo "${{ secrets.KUBECONFIG }}" | base64 -d > ~/.kube/config 2>/dev/null; then
-            echo "KUBECONFIG decoded from base64"
-          else
-            echo "${{ secrets.KUBECONFIG }}" > ~/.kube/config
-            echo "KUBECONFIG used as plain text"
-          fi
-          chmod 600 ~/.kube/config
+      - name: Setup kind
+        uses: helm/kind-action@v1.8.0
 
-      - name: Verify kubectl connection
+      - name: Create kind cluster
         run: |
-          kubectl config view --minify
-          kubectl cluster-info
-          kubectl get nodes
+          kind create cluster --name ci --wait 5m
+
+      - name: Load image to kind
+        run: |
+          kind load docker-image ghcr.io/baokun77/api:latest --name ci
+
+      - name: Apply Kubernetes manifests
+        run: |
+          find k8s -name "*.yaml" -o -name "*.yml" | xargs -I {} kubectl apply -f {}
+
+      - name: Wait for deployment
+        run: |
+          kubectl wait --for=condition=available --timeout=300s deployment/api -n default || true
+          kubectl get pods
+          kubectl get deployments
 
       - name: Deploy to K8s
         run: |
